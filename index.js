@@ -7,10 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect("mongodb+srv://prinkaldoshi:7021804184%40Pd@store.xuu65.mongodb.net/store", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect("mongodb+srv://prinkaldoshi:7021804184%40Pd@store.xuu65.mongodb.net/store")
     .then(() => console.log("Connected to MongoDB"))
 
 app.get("/getItems", (req, res) => {
