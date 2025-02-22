@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const ProductSchema = require("./models/ProductSchema");
+const UserSchema = require("./models/UserModel");
 
 const app = express();
 app.use(express.json());
@@ -16,17 +17,37 @@ app.get("/getItems", (req, res) => {
     .catch(err => res.json(err))
 })
 
-
 app.post("/setItems", async (req, res) => {
     try {
-        console.log("Received data:", req.body); // Log incoming request data
+        console.log("Received data:", req.body); 
 
         const newProduct = new ProductSchema(req.body);
         await newProduct.save();
 
         res.status(201).json(newProduct);
     } catch (err) {
-        console.error("Error saving product:", err); // Log actual error
+        console.error("Error saving product:", err); 
+        res.status(500).json({ error: "Internal Server Error", details: err.message });
+    }
+});
+
+
+app.get("/getUsers", (req, res) => {
+    UserSchema.find()
+        .then(users => res.json(users))
+        .catch(err => res.json(err))
+})
+
+app.post("/setUsers", async (req, res) => {
+    try {
+        console.log("Received data:", req.body); 
+
+        const newUser = new UserSchema(req.body);
+        await newUser.save();
+
+        res.status(201).json(newUser);
+    } catch (err) {
+        console.error("Error saving product:", err);
         res.status(500).json({ error: "Internal Server Error", details: err.message });
     }
 });
