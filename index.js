@@ -31,6 +31,42 @@ app.post("/setItems", async (req, res) => {
     }
 });
 
+app.get("/products/:id", async (req, res) => {
+    try {
+        const product = await ProductSchema.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        res.json({ comments: product.comments || [] });
+    } catch (err) {
+        console.error("Error fetching product comments:", err);
+        res.status(500).json({ error: "Internal Server Error", details: err.message });
+    }
+});
+
+app.post("/products/:id/comments", async (req, res) => {
+    try {
+        const { name, rating, comment } = req.body;
+        if (!name || !comment) {
+            return res.status(400).json({ error: "Name and comment are required" });
+        }
+
+        const product = await ProductSchema.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        product.comments.push({ name, rating, comment });
+        await product.save();
+
+        res.json({ message: "Comment added successfully", product });
+    } catch (err) {
+        console.error("Error adding comment:", err);
+        res.status(500).json({ error: "Internal Server Error", details: err.message });
+    }
+});
+
 
 app.get("/getUsers", (req, res) => {
     UserSchema.find()
