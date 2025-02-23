@@ -52,6 +52,40 @@ app.post("/setUsers", async (req, res) => {
     }
 });
 
+app.put("/updateUser/:id", async (req, res) => {
+    try {
+        const updatedUser = await UserSchema.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json(updatedUser);
+    } catch (err) {
+        console.error("Update Error:", err);
+        res.status(500).json({ error: "Failed to update user" });
+    }
+});
+
+app.delete("/deleteUser/:id", async (req, res) => {
+    try {
+        const deletedUser = await UserSchema.findByIdAndDelete(req.params.id);
+
+        if (!deletedUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json({ message: "User deleted successfully", id: req.params.id });
+    } catch (err) {
+        console.error("Delete Error:", err);
+        res.status(500).json({ error: "Failed to delete user" });
+    }
+});
+
 
 app.get("/", (req, res) => {
     res.send("Welcome to our online shop API...");
