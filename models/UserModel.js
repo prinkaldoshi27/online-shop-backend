@@ -10,6 +10,7 @@ const UsersSchema = new mongoose.Schema({
     gender: {type: String},
     country: {type: String},
     address: {type: String},
+    image: {type: String}
 }, { versionKey: false });
 
 const Users = mongoose.model("users", UsersSchema);
