@@ -31,41 +31,58 @@ app.post("/setItems", async (req, res) => {
     }
 });
 
-app.get("/products/:id", async (req, res) => {
+app.get('/products/:id', async (req, res) => {
     try {
-        const product = await ProductSchema.findById(req.params.id);
+        const id = req.params.id;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: "Invalid Product ID format" });
+        }
+        const objectId = new mongoose.Types.ObjectId(id);
+        const product = await ProductSchema.findById(objectId);
+
         if (!product) {
             return res.status(404).json({ error: "Product not found" });
         }
-
-        res.json({ comments: product.comments || [] });
-    } catch (err) {
-        console.error("Error fetching product comments:", err);
-        res.status(500).json({ error: "Internal Server Error", details: err.message });
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
 app.post("/products/:id/comments", async (req, res) => {
     try {
+        const { id } = req.params;
         const { name, rating, comment } = req.body;
+
         if (!name || !comment) {
             return res.status(400).json({ error: "Name and comment are required" });
         }
 
-        const product = await ProductSchema.findById(req.params.id);
+        // Validate if the provided ID is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: "Invalid Product ID format" });
+        }
+
+        // Fetch the product by ID
+        const product = await ProductSchema.findById(id);
         if (!product) {
             return res.status(404).json({ error: "Product not found" });
         }
 
-        product.comments.push({ name, rating, comment });
+        // Add the comment
+        const newComment = { name, rating: rating || 3, comment, createdAt: new Date() };
+        product.comments.push(newComment);
+
+        // Save the updated product
         await product.save();
 
-        res.json({ message: "Comment added successfully", product });
-    } catch (err) {
-        console.error("Error adding comment:", err);
-        res.status(500).json({ error: "Internal Server Error", details: err.message });
+        res.status(201).json({ message: "Comment added successfully", product });
+    } catch (error) {
+        console.error("🚨 Error adding comment:", error);
+        res.status(500).json({ error: "Internal Server Error", details: error.message });
     }
 });
+
 
 
 app.get("/getUsers", (req, res) => {
